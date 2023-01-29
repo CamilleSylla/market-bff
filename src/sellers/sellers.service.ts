@@ -17,8 +17,8 @@ export class SellersService {
     return `This action returns all sellers`;
   }
 
-  findOneById(id: number) {
-    return `This action returns a #${id} seller`;
+  async findOneById(id: number) {
+    return await this.sellerRepository.findOneBy({ id });
   }
 
   async findOneByEmail(email: string) {
@@ -26,7 +26,7 @@ export class SellersService {
   }
 
   update(id: number, updateSellerDto) {
-    return `This action updates a #${id} seller`;
+    return this.sellerRepository.update(id, updateSellerDto);
   }
 
   remove(id: number) {

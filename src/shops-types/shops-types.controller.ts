@@ -6,8 +6,10 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
   HttpCode,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateShopTypeDTO } from './dto/create.validation';
 import { UpdateShopsTypeDto } from './dto/update.validation';
 import { ShopsTypesService } from './shops-types.service';

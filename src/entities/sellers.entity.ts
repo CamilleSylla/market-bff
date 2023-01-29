@@ -59,6 +59,9 @@ export class Sellers {
   @Column({ default: false })
   active: boolean;
 
+  @Column({ default: null })
+  refresh_token: string;
+
   @ManyToOne((type) => Shops, (shop) => shop.sellers)
   shop: Shops;
 
