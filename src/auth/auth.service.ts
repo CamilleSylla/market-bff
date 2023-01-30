@@ -38,7 +38,7 @@ export class AuthService {
       return {
         access_token,
         refresh_token,
-        user,
+        user: { ...user, manager: true },
       };
     } catch (error) {
       throw new BadRequestException(error);
@@ -60,8 +60,18 @@ export class AuthService {
           expiresIn: '1d',
         },
       ),
-      user,
+      user: { ...user, manager: true },
     };
+  }
+
+  async logoutSeller(tokenId: number, id: number) {
+    try {
+      const verify = tokenId === id;
+      if (!verify) throw new BadRequestException();
+      this.sellerService.update(tokenId, { refresh_token: null });
+    } catch (error) {
+      new BadRequestException();
+    }
   }
 
   private async setRefreshToken(user: any, refreshToken: string) {
