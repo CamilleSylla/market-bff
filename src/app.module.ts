@@ -9,6 +9,7 @@ import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt/dist';
 import { ConfigModule } from '@nestjs/config';
+import { TOTPModule } from './totp/totp.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     JwtModule,
+    TOTPModule,
   ],
 
   controllers: [AppController],

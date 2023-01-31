@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 export class SellersService {
   constructor(
     @InjectRepository(Sellers)
-    private readonly sellerRepository: Repository<Sellers>,
+    readonly sellerRepository: Repository<Sellers>,
   ) {}
   create(createSellerDto) {
     return 'This action adds a new seller';
@@ -31,5 +31,17 @@ export class SellersService {
 
   remove(id: number) {
     return `This action removes a #${id} seller`;
+  }
+
+  async setTwoFactorAuthenticationSecret(userId: number, secret: string) {
+    return this.sellerRepository.update(userId, {
+      totp_secret: secret,
+    });
+  }
+
+  async turnOnTwoFactorAuthentication(userId: number) {
+    return this.sellerRepository.update(userId, {
+      totp_enable: true,
+    });
   }
 }

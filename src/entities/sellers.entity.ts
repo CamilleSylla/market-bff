@@ -56,6 +56,12 @@ export class Sellers {
   @IsNumber()
   adress_zip: number;
 
+  @Column({ nullable: true, default: null })
+  totp_secret?: string;
+
+  @Column({ default: false })
+  totp_enable: boolean;
+
   @Column({ default: false })
   active: boolean;
 
