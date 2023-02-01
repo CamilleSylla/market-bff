@@ -1,22 +1,28 @@
 import {
   ClassSerializerInterceptor,
   Controller,
-  Header,
+  HttpCode,
   Post,
   UseInterceptors,
   Res,
   UseGuards,
+  Body,
   Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Sellers } from 'src/entities/sellers.entity';
 import { CreateSellersDTO } from 'src/sellers/seller.validation';
+import { SellersService } from 'src/sellers/sellers.service';
 import { TOTPService } from './totp.service';
 
 @Controller('totp')
 @UseInterceptors(ClassSerializerInterceptor)
 export class TOTPController {
-  constructor(private readonly totpService: TOTPService) {}
+  constructor(
+    private readonly totpService: TOTPService,
+    private readonly sellerService: SellersService,
+  ) {}
 
   @Post('generate')
   @UseGuards(JwtAuthGuard)
@@ -28,5 +34,19 @@ export class TOTPController {
       request.user,
     );
     return this.totpService.pipeQrCodeStream(response, otpauthUrl);
+  }
+
+  @Post('turn-on')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  async turnOnTwoFactorAuthentication(
+    @Req() { user }: { user: Sellers & { id: number } },
+    @Body() { code }: { code: string },
+  ) {
+    const isCodeValid = this.totpService.isTotpCodeValid(code, user);
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Wrong authentication code');
+    }
+    await this.sellerService.turnOnTwoFactorAuthentication(user.id);
   }
 }

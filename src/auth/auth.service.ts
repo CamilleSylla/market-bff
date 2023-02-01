@@ -30,7 +30,7 @@ export class AuthService {
         throw `Passwords not matching`;
       }
 
-      const { password: pw, refresh_token: rt, ...user } = seller;
+      const { password: pw, refresh_token: rt, totp_secret, ...user } = seller;
       const { access_token, refresh_token } = await this.generateToken(user);
 
       await this.setRefreshToken(user, refresh_token);
@@ -47,7 +47,7 @@ export class AuthService {
 
   async refreshSeller(userId: number, refreshToken: string) {
     const targetUser = await this.sellerService.findOneById(userId);
-    const { password, refresh_token, ...user } = targetUser;
+    const { password, refresh_token, totp_secret, ...user } = targetUser;
     const match = await bcrypt.compare(refreshToken, refresh_token);
     if (!match) {
       return new ForbiddenException('Token expired');
