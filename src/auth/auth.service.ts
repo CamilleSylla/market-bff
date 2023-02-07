@@ -31,14 +31,17 @@ export class AuthService {
       }
 
       const { password: pw, refresh_token: rt, totp_secret, ...user } = seller;
-      const { access_token, refresh_token } = await this.generateToken(user);
-
-      await this.setRefreshToken(user, refresh_token);
+      const access_token = await this.jwtService.signAsync(
+        { id: user.id, email: user.email, totp_enable: user.totp_enable },
+        {
+          secret: process.env.JWT_SECRET,
+          expiresIn: '1d',
+        },
+      );
 
       return {
         access_token,
-        refresh_token,
-        user: { ...user, manager: true },
+        user: { email: user.email, totp_enable: user.totp_enable },
       };
     } catch (error) {
       throw new BadRequestException(error);
@@ -74,12 +77,12 @@ export class AuthService {
     }
   }
 
-  private async setRefreshToken(user: any, refreshToken: string) {
+  public async setRefreshToken(user: any, refreshToken: string) {
     const refresh_token = await bcrypt.hash(refreshToken, 10);
     await this.sellerService.update(user.id, { refresh_token });
   }
 
-  private async generateToken(user) {
+  public async generateToken(user) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
         { ...user, manager: true },

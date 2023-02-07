@@ -10,7 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [SellersModule, PassportModule, JwtModule.register({})],
-  providers: [AuthService, JwtStrategy, RefreshTokenStrategy],
+  providers: [AuthService, JwtStrategy, RefreshTokenStrategy, AuthService],
   controllers: [AuthController],
 })
 export class AuthModule {}

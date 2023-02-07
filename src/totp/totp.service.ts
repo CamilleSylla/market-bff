@@ -2,8 +2,9 @@ import { Injectable, Inject } from '@nestjs/common';
 import { authenticator } from 'otplib';
 import { CreateSellersDTO } from 'src/sellers/seller.validation';
 import { SellersService } from 'src/sellers/sellers.service';
-import { toFileStream } from 'qrcode';
+import { toFileStream, toDataUrl } from 'qrcode';
 import { Sellers } from 'src/entities/sellers.entity';
+import { PassThrough } from 'stream';
 
 @Injectable()
 export class TOTPService {
@@ -26,18 +27,28 @@ export class TOTPService {
     };
   }
 
-  public isTotpCodeValid(
+  public async isTotpCodeValid(
     twoFactorAuthenticationCode: string,
     user: Sellers & { id: number },
   ) {
+    const { totp_secret } = await this.sellerService.findOneById(user.id);
     return authenticator.verify({
       //What is the token ?
       token: twoFactorAuthenticationCode,
-      secret: user.totp_secret,
+      secret: totp_secret,
     });
   }
 
-  public async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
-    return toFileStream(stream, otpauthUrl);
+  public async pipeQrCodeStream(
+    otpauthUrl: string,
+    res: NodeJS.WritableStream,
+  ) {
+    const qrStream = new PassThrough();
+    toFileStream(qrStream, otpauthUrl, {
+      type: 'png',
+      width: 200,
+      errorCorrectionLevel: 'H',
+    });
+    qrStream.pipe(res);
   }
 }
